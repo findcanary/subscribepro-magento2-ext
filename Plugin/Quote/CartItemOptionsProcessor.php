@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Swarming\SubscribePro\Plugin\Quote;
 
 use Magento\Framework\DataObject;

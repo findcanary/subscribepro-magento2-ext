@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Swarming\SubscribePro\Model;
 
 use Swarming\SubscribePro\Api\Data\AddressInterface;

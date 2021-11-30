@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Swarming\SubscribePro\Observer\Payment;
 
 use Magento\Framework\Event\Observer;

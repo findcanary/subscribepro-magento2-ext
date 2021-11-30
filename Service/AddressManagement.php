@@ -1,10 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Swarming\SubscribePro\Service;
 
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Sales\Model\Order\Payment;
-use Magento\Vault\Api\Data;
 use Swarming\SubscribePro\Api\AddressManagementInterface;
 use Magento\Customer\Model\Address\Config as AddressConfig;
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Swarming\SubscribePro\Platform\Webhook\Handler\PaymentProfile;
 
 use SubscribePro\Service\Customer\CustomerInterface as PlatformCustomerInterface;

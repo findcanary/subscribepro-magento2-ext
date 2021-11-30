@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Swarming\SubscribePro\Observer\Checkout;
 
 use Magento\Framework\Event\Observer;
@@ -43,6 +45,11 @@ class SubmitAllAfter implements ObserverInterface
     private $thirdPartyPaymentConfig;
 
     /**
+     * @var \Swarming\SubscribePro\Model\Order\DetailsCreator
+     */
+    private $platformOrderDetailsCreator;
+
+    /**
      * @var array
      */
     private $builtInMethods = [
@@ -57,6 +64,7 @@ class SubmitAllAfter implements ObserverInterface
      * @param \Magento\Quote\Model\Quote\Item\CartItemOptionsProcessor $cartItemOptionProcessor
      * @param \Psr\Log\LoggerInterface $logger
      * @param \Swarming\SubscribePro\Model\Config\ThirdPartyPayment $thirdPartyPaymentConfig
+     * @param \Swarming\SubscribePro\Model\Order\DetailsCreator $orderDetailsCreator
      */
     public function __construct(
         \Swarming\SubscribePro\Model\Config\General $generalConfig,
@@ -64,7 +72,8 @@ class SubmitAllAfter implements ObserverInterface
         \Swarming\SubscribePro\Model\Quote\SubscriptionCreator $subscriptionCreator,
         \Magento\Quote\Model\Quote\Item\CartItemOptionsProcessor $cartItemOptionProcessor,
         \Psr\Log\LoggerInterface $logger,
-        \Swarming\SubscribePro\Model\Config\ThirdPartyPayment $thirdPartyPaymentConfig
+        \Swarming\SubscribePro\Model\Config\ThirdPartyPayment $thirdPartyPaymentConfig,
+        \Swarming\SubscribePro\Model\Order\DetailsCreator $orderDetailsCreator
     ) {
         $this->generalConfig = $generalConfig;
         $this->checkoutSession = $checkoutSession;
@@ -72,6 +81,7 @@ class SubmitAllAfter implements ObserverInterface
         $this->cartItemOptionProcessor = $cartItemOptionProcessor;
         $this->logger = $logger;
         $this->thirdPartyPaymentConfig = $thirdPartyPaymentConfig;
+        $this->platformOrderDetailsCreator = $orderDetailsCreator;
     }
 
     /**
@@ -97,13 +107,34 @@ class SubmitAllAfter implements ObserverInterface
 
         try {
             $result = $this->subscriptionCreator->createSubscriptions($quote, $order);
-            $this->checkoutSession->setData(SubscriptionCreator::CREATED_SUBSCRIPTION_IDS, $result[SubscriptionCreator::CREATED_SUBSCRIPTION_IDS]);
-            $this->checkoutSession->setData(SubscriptionCreator::FAILED_SUBSCRIPTION_COUNT, $result[SubscriptionCreator::FAILED_SUBSCRIPTION_COUNT]);
+            $this->checkoutSession->setData(
+                SubscriptionCreator::CREATED_SUBSCRIPTION_IDS,
+                $result[SubscriptionCreator::CREATED_SUBSCRIPTION_IDS]
+            );
+            $this->checkoutSession->setData(
+                SubscriptionCreator::FAILED_SUBSCRIPTION_COUNT,
+                $result[SubscriptionCreator::FAILED_SUBSCRIPTION_COUNT]
+            );
         } catch (\Exception $e) {
             $this->logger->critical($e);
             $this->checkoutSession->setData(SubscriptionCreator::CREATED_SUBSCRIPTION_IDS, []);
             $this->checkoutSession->setData(SubscriptionCreator::FAILED_SUBSCRIPTION_COUNT, 0);
         }
+
+        if ($this->isSubscriptionsCreated($result)) {
+            $this->platformOrderDetailsCreator->createOrderDetails($order);
+        }
+    }
+
+    /**
+     * @param array $result
+     * @return bool
+     */
+    private function isSubscriptionsCreated(array $result): bool
+    {
+        return isset($result[SubscriptionCreator::CREATED_SUBSCRIPTION_IDS])
+            ? !empty($result[SubscriptionCreator::CREATED_SUBSCRIPTION_IDS])
+            : false;
     }
 
     /**

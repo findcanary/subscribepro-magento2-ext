@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Swarming\SubscribePro\Helper;
 
 use Swarming\SubscribePro\Model\Config\Source\CartRuleCombine;
