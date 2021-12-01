@@ -10,9 +10,15 @@ use Magento\Vault\Api\Data\PaymentTokenInterface;
 use SubscribePro\Service\Address\AddressInterface;
 use SubscribePro\Service\PaymentProfile\PaymentProfileInterface;
 use Swarming\SubscribePro\Gateway\Config\ConfigProvider as SubscribeProConfigProvider;
+use Swarming\SubscribePro\Gateway\Config\ApplePayConfigProvider;
 
 class GetPaymentProfileId
 {
+    const PAYMENT_METHODS_THAT_STORE_TOKENS_LOCALLY = [
+        ApplePayConfigProvider::CODE,
+        SubscribeProConfigProvider::CODE
+    ];
+
     /**
      * @var \Magento\Vault\Api\PaymentTokenManagementInterface
      */
@@ -56,7 +62,7 @@ class GetPaymentProfileId
             throw new \UnexpectedValueException('The vault is not found.');
         }
 
-        return $paymentToken->getPaymentMethodCode() === SubscribeProConfigProvider::CODE
+        return in_array($paymentToken->getPaymentMethodCode(), self::PAYMENT_METHODS_THAT_STORE_TOKENS_LOCALLY)
             ? $paymentToken->getGatewayToken()
             : $this->getExternalProfileId($paymentToken, $payment->getOrder(), $platformCustomerId);
     }
