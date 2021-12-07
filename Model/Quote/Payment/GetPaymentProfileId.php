@@ -14,7 +14,7 @@ use Swarming\SubscribePro\Gateway\Config\ApplePayConfigProvider;
 
 class GetPaymentProfileId
 {
-    const PAYMENT_METHODS_THAT_STORE_TOKENS_LOCALLY = [
+    private const SPRO_PAYMENT_METHODS = [
         ApplePayConfigProvider::CODE,
         SubscribeProConfigProvider::CODE
     ];
@@ -62,7 +62,7 @@ class GetPaymentProfileId
             throw new \UnexpectedValueException('The vault is not found.');
         }
 
-        return in_array($paymentToken->getPaymentMethodCode(), self::PAYMENT_METHODS_THAT_STORE_TOKENS_LOCALLY)
+        return in_array($paymentToken->getPaymentMethodCode(), self::SPRO_PAYMENT_METHODS)
             ? $paymentToken->getGatewayToken()
             : $this->getExternalProfileId($paymentToken, $payment->getOrder(), $platformCustomerId);
     }
