@@ -1,17 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Swarming\SubscribePro\Observer\Payment;
 
 use Magento\Framework\Event\Observer;
 use Magento\Quote\Api\Data\PaymentInterface;
+use Magento\Quote\Model\Quote\Payment as QuotePayment;
 use Magento\Vault\Api\Data\PaymentTokenInterface;
 use SubscribePro\Service\Transaction\TransactionInterface;
-use Swarming\SubscribePro\Gateway\Request\VaultDataBuilder;
-use Swarming\SubscribePro\Gateway\Config\ConfigProvider;
-use Magento\Quote\Model\Quote\Payment as QuotePayment;
 
 class TokenAssigner extends \Magento\Payment\Observer\AbstractDataAssignObserver
 {
+    /**
+     * @var string
+     */
+    private $paymentMethodCode = '';
+
     /**
      * @var \Magento\Vault\Api\PaymentTokenManagementInterface
      */
@@ -19,11 +24,14 @@ class TokenAssigner extends \Magento\Payment\Observer\AbstractDataAssignObserver
 
     /**
      * @param \Magento\Vault\Api\PaymentTokenManagementInterface $paymentTokenManagement
+     * @param string $paymentMethodCode
      */
     public function __construct(
-        \Magento\Vault\Api\PaymentTokenManagementInterface $paymentTokenManagement
+        \Magento\Vault\Api\PaymentTokenManagementInterface $paymentTokenManagement,
+        string $paymentMethodCode = ''
     ) {
         $this->paymentTokenManagement = $paymentTokenManagement;
+        $this->paymentMethodCode = $paymentMethodCode;
     }
 
     /**
@@ -36,11 +44,10 @@ class TokenAssigner extends \Magento\Payment\Observer\AbstractDataAssignObserver
 
         $additionalData = $dataObject->getData(PaymentInterface::KEY_ADDITIONAL_DATA);
 
-        if (!is_array($additionalData) || !isset($additionalData[VaultDataBuilder::PAYMENT_PROFILE_ID])) {
+        $paymentProfileId = $additionalData['profile_id'] ?? null;
+        if (empty($paymentProfileId)) {
             return;
         }
-
-        $profileId = $additionalData[VaultDataBuilder::PAYMENT_PROFILE_ID];
 
         /** @var \Magento\Quote\Model\Quote\Payment $paymentModel */
         $paymentModel = $this->readPaymentModelArgument($observer);
@@ -54,7 +61,11 @@ class TokenAssigner extends \Magento\Payment\Observer\AbstractDataAssignObserver
             return;
         }
 
-        $paymentToken = $this->paymentTokenManagement->getByGatewayToken($profileId, ConfigProvider::CODE, $customerId);
+        $paymentToken = $this->paymentTokenManagement->getByGatewayToken(
+            $paymentProfileId,
+            $this->paymentMethodCode,
+            $customerId
+        );
         if ($paymentToken === null) {
             return;
         }

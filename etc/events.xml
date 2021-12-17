@@ -7,13 +7,13 @@
         <observer name="subscribe_pro_gateway_data_assign" instance="Swarming\SubscribePro\Observer\Payment\DataAssigner" />
     </event>
     <event name="payment_method_assign_data_vault_subscribe_pro">
-        <observer name="subscribe_pro_gateway_data_assign" instance="Swarming\SubscribePro\Observer\Payment\TokenAssigner" />
+        <observer name="subscribe_pro_gateway_data_assign" instance="Swarming\SubscribePro\Observer\Payment\SubscribeProTokenAssigner" />
     </event>
     <event name="payment_method_assign_data_subscribe_pro_apple_pay">
         <observer name="subscribe_pro_apple_pay_gateway_data_assign" instance="Swarming\SubscribePro\Observer\Payment\DataAssigner" />
     </event>
     <event name="payment_method_assign_data_vault_subscribe_pro_apple_pay">
-        <observer name="subscribe_pro_apple_pay_gateway_data_vault_assign" instance="Swarming\SubscribePro\Observer\Payment\TokenAssigner" />
+        <observer name="subscribe_pro_apple_pay_gateway_data_vault_assign" instance="Swarming\SubscribePro\Observer\Payment\ApplePayTokenAssigner" />
     </event>
     <event name="checkout_submit_before">
         <observer name="subscribe_pro_before_order" instance="Swarming\SubscribePro\Observer\Checkout\SubmitBefore" />

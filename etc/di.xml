@@ -574,4 +574,15 @@
             </argument>
         </arguments>
     </type>
+
+    <virtualType name="Swarming\SubscribePro\Observer\Payment\SubscribeProTokenAssigner" type="Swarming\SubscribePro\Observer\Payment\TokenAssigner">
+        <arguments>
+            <argument name="paymentMethodCode" xsi:type="const">Swarming\SubscribePro\Gateway\Config\ConfigProvider::CODE</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Swarming\SubscribePro\Observer\Payment\ApplePayTokenAssigner" type="Swarming\SubscribePro\Observer\Payment\TokenAssigner">
+        <arguments>
+            <argument name="paymentMethodCode" xsi:type="const">Swarming\SubscribePro\Gateway\Config\ApplePayConfigProvider::CODE</argument>
+        </arguments>
+    </virtualType>
 </config>
