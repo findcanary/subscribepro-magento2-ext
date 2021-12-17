@@ -13,6 +13,13 @@
     <preference for="Magento\Payment\Gateway\Data\Order\AddressAdapter" type="Swarming\SubscribePro\Payment\Gateway\Data\Order\AddressAdapter"/>
     <preference for="Swarming\SubscribePro\Service\Payment\PaymentProfileDataBuilderInterface" type="Swarming\SubscribePro\Service\Payment\PaymentProfileDataBuilderPool" />
 
+    <type name="Swarming\SubscribePro\Service\Payment\PaymentProfileDataBuilderPool">
+        <arguments>
+            <argument name="paymentProfileDataBuilders" xsi:type="array">
+                <item name="subscribe_pro_apple_pay" xsi:type="object">Swarming\SubscribePro\Service\PaymentProfileDataBuilder</item>
+            </argument>
+        </arguments>
+    </type>
     <type name="Swarming\SubscribePro\Model\MetaService">
         <arguments>
             <argument name="metaUser" xsi:type="object">Swarming\SubscribePro\Model\Meta\Customer</argument>
