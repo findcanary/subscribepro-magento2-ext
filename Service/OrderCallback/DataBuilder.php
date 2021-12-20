@@ -6,7 +6,7 @@ namespace Swarming\SubscribePro\Service\OrderCallback;
 
 use Magento\Quote\Model\Quote\Address as QuoteAddress;
 use Magento\Quote\Model\Quote\Payment as QuotePayment;
-use Swarming\SubscribePro\Gateway\Config\ConfigProvider as GatewayConfigProvider;
+use SubscribePro\Service\PaymentProfile\PaymentProfileInterface;
 
 class DataBuilder
 {
@@ -113,7 +113,11 @@ class DataBuilder
      */
     public function importPaymentData(QuotePayment $quotePayment, array $paymentData, int $storeId): void
     {
-        $paymentMethodCode = $this->getPaymentMethodCode($this->getValue($paymentData, 'paymentProfileType'), $storeId);
+        $paymentMethodCode = $this->getPaymentMethodCode(
+            $this->getValue($paymentData, 'paymentProfileType'),
+            $this->getValue($paymentData, 'paymentMethodType'),
+            $storeId
+        );
 
         $quotePayment->unsMethodInstance();
         $quotePayment->setPaymentMethod($paymentMethodCode);
@@ -140,11 +144,29 @@ class DataBuilder
      * @param int $storeId
      * @return string
      */
-    private function getPaymentMethodCode(string $paymentProfileType, int $storeId): string
-    {
-        $paymentMethodCode = $paymentProfileType === 'external_vault'
-            ? $this->thirdPartyPaymentConfig->getAllowedVault($storeId)
-            : GatewayConfigProvider::VAULT_CODE;
+    private function getPaymentMethodCode(
+        string $paymentProfileType,
+        string $paymentMethodType,
+        int $storeId
+    ): string {
+        switch ($paymentProfileType) {
+            case PaymentProfileInterface::TYPE_EXTERNAL_VAULT:
+                $paymentMethodCode = $this->thirdPartyPaymentConfig->getAllowedVault($storeId);
+                break;
+
+            case PaymentProfileInterface::TYPE_SPREEDLY_DUAL_VAULT:
+                throw new EntityInvalidDataException('Unsupported profile type: ' . $paymentProfileType);
+
+            case PaymentProfileInterface::TYPE_SPREEDLY_VAULT:
+                switch ($paymentMethodType) {
+                    case PaymentProfileInterface::TYPE_APPLE_PAY:
+                        $paymentMethodCode = 'subscribe_pro_apple_pay_vault';
+                        break;
+                    case PaymentProfileInterface::TYPE_CREDIT_CARD:
+                    default:
+                        $paymentMethodCode = 'subscribe_pro_vault';
+                }
+        }
 
         if (empty($paymentMethodCode)) {
             throw new \UnexpectedValueException('No third party method configured');

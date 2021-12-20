@@ -42,39 +42,31 @@ class TokenAssigner extends \Magento\Payment\Observer\AbstractDataAssignObserver
      */
     public function execute(Observer $observer)
     {
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $logger = $objectManager->get(\Psr\Log\LoggerInterface::class);
-        $logger->debug('paymentMethodCode: ' . $this->paymentMethodCode);
         $dataObject = $this->readDataArgument($observer);
 
         $additionalData = $dataObject->getData(PaymentInterface::KEY_ADDITIONAL_DATA);
 
         $paymentProfileId = $additionalData['profile_id'] ?? null;
-        $logger->debug('paymentProfileId: ' . $paymentProfileId);
         if (empty($paymentProfileId)) {
             return;
         }
 
         /** @var \Magento\Quote\Model\Quote\Payment $paymentModel */
         $paymentModel = $this->readPaymentModelArgument($observer);
-        $logger->debug('InstanceOf: ' . ($paymentModel instanceof QuotePayment));
         if (!$paymentModel instanceof QuotePayment) {
             return;
         }
 
         $quote = $paymentModel->getQuote();
         $customerId = $quote->getCustomer()->getId();
-        $logger->debug('customerId: ' . $customerId);
         if ($customerId === null) {
             return;
         }
-        $logger->debug('getting stuff in PaymentTokenManagement: ' . $paymentProfileId . '/' . $this->paymentMethodCode . '/' .  $customerId);
         $paymentToken = $this->paymentTokenManagement->getByGatewayToken(
             $paymentProfileId,
             $this->paymentMethodCode,
             $customerId
         );
-        $logger->debug('paymentToken: ' . $paymentToken);
         if ($paymentToken === null) {
             return;
         }

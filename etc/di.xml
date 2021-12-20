@@ -382,6 +382,14 @@
             <argument name="code" xsi:type="const">Swarming\SubscribePro\Gateway\Config\ConfigProvider::VAULT_CODE</argument>
         </arguments>
     </virtualType>
+    <virtualType name="SubscribeProApplePayVaultAdapter" type="Magento\Vault\Model\Method\Vault">
+        <arguments>
+            <argument name="config" xsi:type="object">Swarming\SubscribePro\Gateway\Config\VaultConfig</argument>
+            <argument name="valueHandlerPool" xsi:type="object">SubscribeProVaultPaymentValueHandlerPool</argument>
+            <argument name="vaultProvider" xsi:type="object">SubscribeProApplePayAdapter</argument>
+            <argument name="code" xsi:type="const">Swarming\SubscribePro\Gateway\Config\ApplePayConfigProvider::VAULT_CODE</argument>
+        </arguments>
+    </virtualType>
 
     <type name="Swarming\SubscribePro\Controller\Cards\Save">
         <arguments>
