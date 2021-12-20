@@ -30,11 +30,9 @@ class TokenAssigner extends \Magento\Payment\Observer\AbstractDataAssignObserver
      */
     public function __construct(
         \Magento\Vault\Api\PaymentTokenManagementInterface $paymentTokenManagement,
-        \Psr\Log\LoggerInterface $logger,
         string $paymentMethodCode = ''
     ) {
         $this->paymentTokenManagement = $paymentTokenManagement;
-        $this->logger = $logger;
         $this->paymentMethodCode = $paymentMethodCode;
     }
 
@@ -44,37 +42,39 @@ class TokenAssigner extends \Magento\Payment\Observer\AbstractDataAssignObserver
      */
     public function execute(Observer $observer)
     {
-        $this->logger->debug('paymentMethodCode: ' . $this->paymentMethodCode);
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $logger = $objectManager->get(\Psr\Log\LoggerInterface::class);
+        $logger->debug('paymentMethodCode: ' . $this->paymentMethodCode);
         $dataObject = $this->readDataArgument($observer);
 
         $additionalData = $dataObject->getData(PaymentInterface::KEY_ADDITIONAL_DATA);
 
         $paymentProfileId = $additionalData['profile_id'] ?? null;
-        $this->logger->debug('paymentProfileId: ' . $paymentProfileId);
+        $logger->debug('paymentProfileId: ' . $paymentProfileId);
         if (empty($paymentProfileId)) {
             return;
         }
 
         /** @var \Magento\Quote\Model\Quote\Payment $paymentModel */
         $paymentModel = $this->readPaymentModelArgument($observer);
-        $this->logger->debug('InstanceOf: ' . ($paymentModel instanceof QuotePayment));
+        $logger->debug('InstanceOf: ' . ($paymentModel instanceof QuotePayment));
         if (!$paymentModel instanceof QuotePayment) {
             return;
         }
 
         $quote = $paymentModel->getQuote();
         $customerId = $quote->getCustomer()->getId();
-        $this->logger->debug('customerId: ' . $customerId);
+        $logger->debug('customerId: ' . $customerId);
         if ($customerId === null) {
             return;
         }
-        $this->logger->debug('getting stuff in PaymentTokenManagement: ' . $paymentProfileId . '/' . $this->paymentMethodCode . '/' .  $customerId);
+        $logger->debug('getting stuff in PaymentTokenManagement: ' . $paymentProfileId . '/' . $this->paymentMethodCode . '/' .  $customerId);
         $paymentToken = $this->paymentTokenManagement->getByGatewayToken(
             $paymentProfileId,
             $this->paymentMethodCode,
             $customerId
         );
-        $this->logger->debug('paymentToken: ' . $paymentToken);
+        $logger->debug('paymentToken: ' . $paymentToken);
         if ($paymentToken === null) {
             return;
         }
