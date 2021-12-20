@@ -44,6 +44,7 @@ class TokenAssigner extends \Magento\Payment\Observer\AbstractDataAssignObserver
      */
     public function execute(Observer $observer)
     {
+        $this->logger->debug('paymentMethodCode: ' . $this->paymentMethodCode);
         $dataObject = $this->readDataArgument($observer);
 
         $additionalData = $dataObject->getData(PaymentInterface::KEY_ADDITIONAL_DATA);
