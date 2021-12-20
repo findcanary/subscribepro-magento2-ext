@@ -22,15 +22,19 @@ class TokenAssigner extends \Magento\Payment\Observer\AbstractDataAssignObserver
      */
     protected $paymentTokenManagement;
 
+    private $logger;
+
     /**
      * @param \Magento\Vault\Api\PaymentTokenManagementInterface $paymentTokenManagement
      * @param string $paymentMethodCode
      */
     public function __construct(
         \Magento\Vault\Api\PaymentTokenManagementInterface $paymentTokenManagement,
+        \Psr\Log\LoggerInterface $logger,
         string $paymentMethodCode = ''
     ) {
         $this->paymentTokenManagement = $paymentTokenManagement;
+        $this->logger = $logger;
         $this->paymentMethodCode = $paymentMethodCode;
     }
 
@@ -45,27 +49,31 @@ class TokenAssigner extends \Magento\Payment\Observer\AbstractDataAssignObserver
         $additionalData = $dataObject->getData(PaymentInterface::KEY_ADDITIONAL_DATA);
 
         $paymentProfileId = $additionalData['profile_id'] ?? null;
+        $this->logger->debug('paymentProfileId: ' . $paymentProfileId);
         if (empty($paymentProfileId)) {
             return;
         }
 
         /** @var \Magento\Quote\Model\Quote\Payment $paymentModel */
         $paymentModel = $this->readPaymentModelArgument($observer);
+        $this->logger->debug('InstanceOf: ' . ($paymentModel instanceof QuotePayment));
         if (!$paymentModel instanceof QuotePayment) {
             return;
         }
 
         $quote = $paymentModel->getQuote();
         $customerId = $quote->getCustomer()->getId();
+        $this->logger->debug('customerId: ' . $customerId);
         if ($customerId === null) {
             return;
         }
-
+        $this->logger->debug('getting stuff in PaymentTokenManagement: ' . $paymentProfileId . '/' . $this->paymentMethodCode . '/' .  $customerId);
         $paymentToken = $this->paymentTokenManagement->getByGatewayToken(
             $paymentProfileId,
             $this->paymentMethodCode,
             $customerId
         );
+        $this->logger->debug('paymentToken: ' . $paymentToken);
         if ($paymentToken === null) {
             return;
         }
