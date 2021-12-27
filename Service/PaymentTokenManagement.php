@@ -4,6 +4,7 @@ namespace Swarming\SubscribePro\Service;
 
 use Magento\Vault\Api\Data\PaymentTokenInterface;
 use Swarming\SubscribePro\Api\PaymentTokenManagementInterface;
+use Magento\Framework\Api\Search\FilterGroupBuilder;
 
 class PaymentTokenManagement implements PaymentTokenManagementInterface
 {
