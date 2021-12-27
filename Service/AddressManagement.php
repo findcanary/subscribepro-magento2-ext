@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Swarming\SubscribePro\Service;
 
 use Magento\Framework\Exception\LocalizedException;

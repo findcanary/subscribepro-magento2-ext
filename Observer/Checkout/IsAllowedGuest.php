@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Swarming\SubscribePro\Observer\Checkout;
 
 use Magento\Framework\Event\ObserverInterface;
