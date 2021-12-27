@@ -129,8 +129,12 @@ class SubmitAllAfter implements ObserverInterface
             $this->checkoutSession->setData(SubscriptionCreator::FAILED_SUBSCRIPTION_COUNT, 0);
         }
 
-        if ($result && $this->isSubscriptionsCreated($result)) {
-            $this->platformOrderDetailsCreator->createOrderDetails($order);
+        try {
+            if ($result && $this->isSubscriptionsCreated($result)) {
+                $this->platformOrderDetailsCreator->createOrderDetails($order);
+            }
+        } catch (\Exception $e) {
+            $this->logger->critical($e);
         }
     }
 
