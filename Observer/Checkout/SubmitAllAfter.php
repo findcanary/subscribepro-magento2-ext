@@ -129,7 +129,7 @@ class SubmitAllAfter implements ObserverInterface
             $this->checkoutSession->setData(SubscriptionCreator::FAILED_SUBSCRIPTION_COUNT, 0);
         }
 
-        if ($this->isSubscriptionsCreated($result)) {
+        if ($result && $this->isSubscriptionsCreated($result)) {
             $this->platformOrderDetailsCreator->createOrderDetails($order);
         }
     }
@@ -140,9 +140,7 @@ class SubmitAllAfter implements ObserverInterface
      */
     private function isSubscriptionsCreated(array $result): bool
     {
-        return isset($result[SubscriptionCreator::CREATED_SUBSCRIPTION_IDS])
-            ? !empty($result[SubscriptionCreator::CREATED_SUBSCRIPTION_IDS])
-            : false;
+        return !empty($result[SubscriptionCreator::CREATED_SUBSCRIPTION_IDS]);
     }
 
     /**

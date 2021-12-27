@@ -14,7 +14,7 @@ class DetailsCreator
     private $orderDetailsService;
 
     /**
-     * @var \SubscribePro\Service\OrderDetails\Builder
+     * @var \Swarming\SubscribePro\Platform\Service\OrderDetailsBuilder
      */
     private $orderDetailsBuilder;
 
@@ -25,12 +25,12 @@ class DetailsCreator
 
     /**
      * @param \Swarming\SubscribePro\Platform\Service\OrderDetails $orderDetailsService
-     * @param \\SubscribePro\Service\OrderDetails\Builder $orderDetailsBuilder
+     * @param \Swarming\SubscribePro\Platform\Service\OrderDetailsBuilder $orderDetailsBuilder
      * @param \Psr\Log\LoggerInterface $logger
      */
     public function __construct(
         \Swarming\SubscribePro\Platform\Service\OrderDetails $orderDetailsService,
-        \SubscribePro\Service\OrderDetails\Builder $orderDetailsBuilder,
+        \Swarming\SubscribePro\Platform\Service\OrderDetailsBuilder $orderDetailsBuilder,
         \Psr\Log\LoggerInterface $logger
     ) {
         $this->orderDetailsService = $orderDetailsService;
