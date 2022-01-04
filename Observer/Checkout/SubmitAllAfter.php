@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Swarming\SubscribePro\Observer\Checkout;
 
 use Magento\Framework\Event\Observer;
@@ -38,14 +40,14 @@ class SubmitAllAfter implements ObserverInterface
     protected $logger;
 
     /**
-     * @var \Swarming\SubscribePro\Model\Config\ThirdPartyPayment
-     */
-    private $thirdPartyPaymentConfig;
-
-    /**
      * @var \Swarming\SubscribePro\Helper\ThirdPartyPayment
      */
     private $thirdPartyPayment;
+
+    /**
+     * @var \Swarming\SubscribePro\Model\Order\DetailsCreator
+     */
+    private $platformOrderDetailsCreator;
 
     /**
      * @var array
@@ -61,8 +63,8 @@ class SubmitAllAfter implements ObserverInterface
      * @param \Swarming\SubscribePro\Model\Quote\SubscriptionCreator $subscriptionCreator
      * @param \Magento\Quote\Model\Quote\Item\CartItemOptionsProcessor $cartItemOptionProcessor
      * @param \Psr\Log\LoggerInterface $logger
-     * @param \Swarming\SubscribePro\Model\Config\ThirdPartyPayment $thirdPartyPaymentConfig
      * @param \Swarming\SubscribePro\Helper\ThirdPartyPayment $thirdPartyPayment
+     * @param \Swarming\SubscribePro\Model\Order\DetailsCreator $orderDetailsCreator
      */
     public function __construct(
         \Swarming\SubscribePro\Model\Config\General $generalConfig,
@@ -70,16 +72,16 @@ class SubmitAllAfter implements ObserverInterface
         \Swarming\SubscribePro\Model\Quote\SubscriptionCreator $subscriptionCreator,
         \Magento\Quote\Model\Quote\Item\CartItemOptionsProcessor $cartItemOptionProcessor,
         \Psr\Log\LoggerInterface $logger,
-        \Swarming\SubscribePro\Model\Config\ThirdPartyPayment $thirdPartyPaymentConfig,
-        \Swarming\SubscribePro\Helper\ThirdPartyPayment $thirdPartyPayment
+        \Swarming\SubscribePro\Helper\ThirdPartyPayment $thirdPartyPayment,
+        \Swarming\SubscribePro\Model\Order\DetailsCreator $orderDetailsCreator
     ) {
         $this->generalConfig = $generalConfig;
         $this->checkoutSession = $checkoutSession;
         $this->subscriptionCreator = $subscriptionCreator;
         $this->cartItemOptionProcessor = $cartItemOptionProcessor;
         $this->logger = $logger;
-        $this->thirdPartyPaymentConfig = $thirdPartyPaymentConfig;
         $this->thirdPartyPayment = $thirdPartyPayment;
+        $this->platformOrderDetailsCreator = $orderDetailsCreator;
     }
 
     /**
@@ -118,6 +120,19 @@ class SubmitAllAfter implements ObserverInterface
             $this->checkoutSession->setData(SubscriptionCreator::CREATED_SUBSCRIPTION_IDS, []);
             $this->checkoutSession->setData(SubscriptionCreator::FAILED_SUBSCRIPTION_COUNT, 0);
         }
+
+        if (isset($result) && $this->isSubscriptionsCreated($result)) {
+            $this->platformOrderDetailsCreator->createOrderDetails($order);
+        }
+    }
+
+    /**
+     * @param array $result
+     * @return bool
+     */
+    private function isSubscriptionsCreated(array $result): bool
+    {
+        return !empty($result[SubscriptionCreator::CREATED_SUBSCRIPTION_IDS]);
     }
 
     /**
